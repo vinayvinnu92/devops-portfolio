@@ -1,0 +1,39 @@
++---------------------------+
+|       Docker Host         |
+| /tmp/nautilus.txt.gpg     |
++------------+--------------+
+             |
+             | docker cp
+             v
++---------------------------+
+|     ubuntu_latest         |
+|        /tmp/              |
+|  nautilus.txt.gpg         |
++---------------------------+
+# 📌 Task: Copy Encrypted File to Docker Container
+
+## 🎯 Objective
+Copy an encrypted file `/tmp/nautilus.txt.gpg` from the Docker host to the `ubuntu_latest` container at `/tmp/` without modifying the file.
+
+---
+
+## 🛠 Steps Performed
+
+### 1️⃣ Verify Running Containers
+Checked that the container `ubuntu_latest` is running.
+
+```bash
+docker ps
+2️⃣ Copy File to Container
+Copied the file from the Docker host to the container.
+
+bash
+Copy code
+docker cp /tmp/nautilus.txt.gpg ubuntu_latest:/tmp/
+3️⃣ Validate File Copy
+Verified that the file exists in the container and was not modified.
+
+bash
+Copy code
+docker exec -it ubuntu_latest ls -l /tmp/
+docker exec -it ubuntu_latest sha256sum /tmp/nautilus.txt.gpg
