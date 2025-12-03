@@ -1,0 +1,95 @@
+One of the Nautilus DevOps team members was working to configure services on a kkloud container that is running on App Server 3 in Stratos Datacenter. Due to some personal work he is on PTO for the rest of the week, but we need to finish his pending work ASAP. Please complete the remaining work as per details given below:
+a. Install apache2 in kkloud container using apt that is running on App Server 3 in Stratos Datacenter.
+b. Configure Apache to listen on port 6300 instead of default http port. Do not bind it to listen on specific IP or hostname only, i.e it should listen on localhost, 127.0.0.1, container ip, etc.
+c. Make sure Apache service is up and running inside the container. Keep the container in running state at the end.
+
+                 ┌──────────────────────────────────────────┐
+                 │          Stratos Datacenter              │
+                 └──────────────────────────────────────────┘
+                                   │
+                                   │  SSH
+                                   ▼
+                    ┌────────────────────────────────┐
+                    │        App Server 3            │
+                    │   (Docker Host / Ubuntu)       │
+                    └────────────────────────────────┘
+                                   │
+                                   │  docker exec -it kkloud bash
+                                   ▼
+            ┌────────────────────────────────────────────────────────┐
+            │                    kkloud Container                     │
+            │                  (Ubuntu-based image)                   │
+            └────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+             ┌────────────────────────────────────────────────────┐
+             │                    Apache2 Installed               │
+             │                                                    │
+             │   /etc/apache2/ports.conf                          │
+             │       └── Listen 6300                              │
+             │                                                    │
+             │   /etc/apache2/sites-available/000-default.conf    │
+             │       └── <VirtualHost *:6300>                     │
+             │                                                    │
+             │  Apache listens on:                                │
+             │     - localhost                                    │
+             │     - 127.0.0.1                                    │
+             │     - Container IP                                 │
+             │     - All Interfaces (*:6300)                      │
+             └────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+                      ┌───────────────────────────┐
+                      │  Apache Service Running   │
+                      │  Port: 6300               │
+                      │  Container kept running   │
+                      └───────────────────────────┘
+
+✅ Step-by-Step Solution
+1. SSH into App Server 3
+
+From the jump host (if required):
+
+ssh clint@172.16.238.12
+# password: ******** (as per lab)
+
+2. List running containers to locate kkloud
+docker ps
+
+
+Identify the kkloud container name (often kkloud_app or similar).
+
+3. Access the kkloud container
+docker exec -it kkloud bash
+
+✅ TASK A — Install Apache2 inside the container
+
+Update repositories and install Apache:
+
+apt-get update
+apt-get install -y apache2
+
+✅ TASK B — Configure Apache to listen on port 6300
+Edit the ports configuration file:
+sed -i 's/Listen 80/Listen 6300/' /etc/apache2/ports.conf
+
+Edit the default site config:
+sed -i 's/<VirtualHost \*:80>/<VirtualHost \*:6300>/' /etc/apache2/sites-available/000-default.conf
+
+❗ Important: Make sure Apache listens on all interfaces
+
+No need to bind to a specific IP—default Apache configuration already listens on all available interfaces.
+
+✅ TASK C — Restart and enable Apache
+service apache2 restart
+service apache2 status
+
+
+Ensure it shows active (running).
+
+Leave the container running
+
+Exit the container without stopping it:
+
+exit
+
