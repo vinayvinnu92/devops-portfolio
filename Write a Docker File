@@ -1,0 +1,71 @@
+As per recent requirements shared by the Nautilus application development team, they need custom images created for one of their projects. Several of the initial testing requirements are already been shared with DevOps team. Therefore, create a docker file /opt/docker/Dockerfile (please keep D capital of Dockerfile) on App server 3 in Stratos DC and configure to build an image with the following requirements: a. Use ubuntu:24.04 as the base image. b. Install apache2 and configure it to work on 5003 port. (do not update any other Apache configuration settings like document root etc).
+ ┌──────────────────────────────────────────────────────────┐
+ │                   App Server 3 (Stratos DC)              │
+ │                                                          │
+ │  /opt/docker/Dockerfile                                  │
+ │  -----------------------------------------------------    │
+ │  FROM ubuntu:24.04                                        │
+ │  Install apache2                                          │
+ │  Modify Apache to listen on port 5003                     │
+ │  Expose 5003                                              │
+ │  CMD: apache2ctl -D FOREGROUND                            │
+ │                                                          │
+ └──────────────────────────────────────────────────────────┘
+                 │
+                 │ docker build
+                 ▼
+ ┌──────────────────────────────────────────────────────────┐
+ │                Docker Image: custom-apache               │
+ │  -----------------------------------------------------    │
+ │  Base: ubuntu:24.04                                       │
+ │  + apache2 installed                                      │
+ │  + listens on port 5003                                   │
+ │                                                          │
+ └──────────────────────────────────────────────────────────┘
+                 │
+                 │ docker run
+                 ▼
+ ┌──────────────────────────────────────────────────────────┐
+ │                Apache Container Instance                 │
+ │  -----------------------------------------------------    │
+ │  Runs apache2 in foreground                               │
+ │  Container port: 5003                                      │
+ │  Serves default document root                             │
+ │                                                          │
+ └──────────────────────────────────────────────────────────┘
+                 │
+                 ▼
+       Browser / Client Access
+       http://<server-ip>:5003
+
+#SSH into App Server 3
+
+ssh tony@stapp03
+
+
+#(username may vary depending on your environment)
+
+#Create the directory
+
+sudo mkdir -p /opt/docker
+
+
+#Open Dockerfile for editing
+
+sudo vi /opt/docker/Dockerfile
+
+FROM ubuntu:24.04
+
+# Install Apache2
+RUN apt-get update && apt-get install -y apache2 && apt-get clean
+
+# Change Apache to listen on port 5003
+RUN sed -i 's/80/5003/' /etc/apache2/ports.conf && \
+    sed -i 's/:80/:5003/' /etc/apache2/sites-enabled/000-default.conf
+
+# Expose the new port
+EXPOSE 5003
+
+# Start Apache in the foreground
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+#exit
