@@ -1,0 +1,61 @@
+The Nautilus DevOps team needs to set up several docker environments for different applications. One of the team members has been assigned a ticket where he has been asked to create some docker networks to be used later. Complete the task based on the following ticket description:
+a. Create a docker network named as news on App Server 3 in Stratos DC.
+b. Configure it to use bridge drivers.
+c. Set it to use subnet 192.168.30.0/24 and iprange 192.168.30.0/24.
+
+                 ┌────────────────────────────────────────────┐
+                 │        App Server 3 (Stratos DC)           │
+                 │                                            │
+                 │   Docker Engine                            │
+                 │   ┌──────────────────────────────────────┐ │
+                 │   │   docker network create              │ │
+                 │   │--------------------------------------│ │
+                 │   │   Name:   news                       │ │
+                 │   │   Driver: bridge                     │ │
+                 │   │   Subnet: 192.168.30.0/24            │ │
+                 │   │   IP Range: 192.168.30.0/24          │ │
+                 │   └──────────────────────────────────────┘ │
+                 │                                            │
+                 └────────────────────────────────────────────┘
+                                   │
+                                   ▼
+                     ┌──────────────────────────────┐
+                     │   Docker Network: news        │
+                     │-------------------------------│
+                     │  Type: Bridge Network         │
+                     │  Subnet: 192.168.30.0/24      │
+                     │  IP Range: 192.168.30.0/24    │
+                     │                               │
+                     └──────────────────────────────┘
+
+
+✅ Step-by-Step Solution
+# SSH into App Server 3
+ssh tony@stapp03
+
+
+#(Username may vary depending on your lab environment)
+
+#✅ 2. Create the Docker network news with required settings
+
+#Run this command:
+
+sudo docker network create \
+  --driver bridge \
+  --subnet 192.168.30.0/24 \
+  --ip-range 192.168.30.0/24 \
+  news
+
+#🔍 3. Verify the network was created
+sudo docker network inspect news
+
+
+#You should see:
+
+"Name": "news"
+
+"Driver": "bridge"
+
+"Subnet": "192.168.30.0/24"
+
+"IPRange": "192.168.30.0/24"
