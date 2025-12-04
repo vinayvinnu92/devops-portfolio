@@ -1,0 +1,90 @@
+The Nautilus application development team shared static website content that needs to be hosted on the httpd web server using a containerised platform. The team has shared details with the DevOps team, and we need to set up an environment according to those guidelines. Below are the details: a. On App Server 2 in Stratos DC create a container named httpd using a docker compose file /opt/docker/docker-compose.yml (please use the exact name for file). b. Use httpd (preferably latest tag) image for container and make sure container is named as httpd; you can use any name for service. c. Map 80 number port of container with port 3004 of docker host. d. Map container's /usr/local/apache2/htdocs volume with /opt/security volume of docker host which is already there. (please do not modify any data within these locations).
+
+🖼️ Diagram: httpd Container with Volume and Port Mapping
+                    ┌───────────────────────────────────────────┐
+                    │        App Server 2 (Stratos DC)          │
+                    │                                           │
+ Host Port 3004     │   ┌────────────────────────────────────┐  │
+ ──────────────────▶│   │          Docker Engine             │  │
+                    │   │------------------------------------│  │
+                    │   │ docker-compose up -d               │  │
+                    │   │                                    │  │
+                    │   │ Service: webserver                 │  │
+                    │   │ Container Name: httpd              │  │
+                    │   │ Image: httpd:latest                │  │
+                    │   │ Ports: 3004(host) -> 80(container) │  │
+                    │   │ Volumes: /opt/security ->          │  │
+                    │   │          /usr/local/apache2/htdocs │  │
+                    │   └────────────────────────────────────┘  │
+                    │                                           │
+                    └───────────────────────────────────────────┘
+                                      │
+                                      ▼
+                       ┌──────────────────────────────┐
+                       │       Container: httpd       │
+                       │------------------------------│
+                       │ Image: httpd:latest          │
+                       │ Port 80 (mapped to 3004)     │
+                       │ /usr/local/apache2/htdocs    │
+                       │ mapped to /opt/security      │
+                       │ Status: Running              │
+                       └──────────────────────────────┘
+
+#✅ 1. SSH into App Server 2
+ssh tony@stapp02
+
+
+#(username may vary depending on your lab environment)
+
+#✅ 2. Create the directory (if not already present)
+sudo mkdir -p /opt/docker
+
+#✅ 3. Create the docker-compose.yml file
+
+#Open the file:
+
+sudo vi /opt/docker/docker-compose.yml
+
+
+#Paste the following exact Docker Compose configuration:
+
+version: '3.8'
+
+services:
+  webserver:
+    image: httpd:latest
+    container_name: httpd
+    ports:
+      - "3004:80"
+    volumes:
+      - /opt/security:/usr/local/apache2/htdocs
+
+
+Save and exit (ESC → :wq).
+
+#✅ 4. Start the container using Docker Compose
+cd /opt/docker
+sudo docker compose up -d
+
+
+#This will:
+
+✔ Pull httpd:latest
+✔ Create container httpd
+✔ Map host port 3004 → container port 80
+✔ Mount /opt/security → /usr/local/apache2/htdocs
+✔ Run the container in the background
+
+#🔍 5. Verify the container is running
+sudo docker ps
+
+
+You should see:
+
+NAME: httpd
+
+PORTS: 0.0.0.0:3004 → 80/tcp
+
+IMAGE: httpd:latest
+
+
